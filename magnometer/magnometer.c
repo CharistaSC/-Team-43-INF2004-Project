@@ -5,6 +5,8 @@
 
 #define MAGNETOMETER_ADDRESS 0x1E
 #define ACCELEROMETER_ADDRESS 0x19
+#define REGISTER_ACCELEROMETER 0x28
+#define REGISTER_MAGNETOMETER 0x28
 
 uint8_t config[2] = {0x20, 0x27};
 uint8_t config_accel[2] = {0x23, 0x00};
@@ -28,9 +30,7 @@ int main() {
         i2c_write_blocking(i2c0, MAGNETOMETER_ADDRESS, config_crb, 2, false);
         sleep_ms(10); // Waiting for magnetometer data
 
-        // Read magnetometer data
-        uint8_t mag_data = 0x03; // X-axis msb data register
-        i2c_write_blocking(i2c0, MAGNETOMETER_ADDRESS, &mag_data, 1, true);
+        i2c_write_blocking(i2c0, MAGNETOMETER_ADDRESS, REGISTER_MAGNETOMETER, 1, true);
         uint8_t magdata[6] = {0};
         i2c_read_blocking(i2c0, MAGNETOMETER_ADDRESS, magdata, 6, false);
 
@@ -48,9 +48,7 @@ int main() {
         i2c_write_blocking(i2c0, ACCELEROMETER_ADDRESS, config_accel, 2, false);
         sleep_ms(10); // Waiting for accelerometer data
 
-        // Read accelerometer data
-        uint8_t reg_accel = 0x28; // X-axis lsb data register
-        i2c_write_blocking(i2c0, ACCELEROMETER_ADDRESS, &reg_accel, 1, true);
+        i2c_write_blocking(i2c0, ACCELEROMETER_ADDRESS, REGISTER_ACCELEROMETER, 1, true);
         uint8_t acceldata[6] = {0};
         i2c_read_blocking(i2c0, ACCELEROMETER_ADDRESS, acceldata, 6, false);
 
@@ -63,7 +61,7 @@ int main() {
         int16_t accelZ = (acceldata[2] << 8) | acceldata[3];
         if (accelZ > 32767) {accelZ -= 65536;}
 
-        printf("Accel: X=%d, Y=%d, Z=%d", accelX, accelY, accelZ);
+        printf("Accelerometer: X=%d, Y=%d, Z=%d     ", accelX, accelY, accelZ);
         printf("Magnetometer Data - X: %d, Y: %d, Z: %d\n", magX, magY, magZ);
 
         sleep_ms(200); // Sleep for 100ms (adjust as needed).
